@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account - AI Insight{% endblock %}
+
+{% block auth_content %}
+<div class="card auth-card">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <div style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;"><span
+                style="color: var(--primary);">AI</span>Insight</div>
+        <h2 style="font-size: 1.5rem; color: var(--text-main);">Join the Platform</h2>
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Create a new account to start managing your AI models.
+        </p>
+    </div>
+
+    {% if error %}
+    <div class="alert"
+        style="padding: 0.75rem; background-color: #fff5f5; border: 1px solid #feb2b2; color: #c53030; border-radius: 0.5rem; margin-bottom: 1.5rem; font-size: 0.875rem; text-align: center;">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form action="/auth/signup" method="post">
+        <div class="form-group">
+            <label for="username">Choose Username</label>
+            <input type="text" id="username" name="username" placeholder="johndoe" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Set Password</label>
+            <input type="password" id="password" name="password" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-lg" style="margin-top: 1rem;">Create Workspace Account</button>
+    </form>
+
+    <div style="text-align: center; margin-top: 2rem; font-size: 0.875rem; color: var(--text-muted);">
+        Already have an account? <a href="/login"
+            style="color: var(--primary); font-weight: 600; text-decoration: none;">Sign in here</a>
+    </div>
+</div>
+{% endblock %}

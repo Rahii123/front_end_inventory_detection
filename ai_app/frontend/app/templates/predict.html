@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% set active_page = 'predict' %}
+
+{% block title %}Analysis - AI Insight{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">Inference / Image Analysis</div>
+<h1>Image Analysis</h1>
+<p style="margin-bottom: 2.5rem; color: var(--text-muted);">Upload a hotel inventory image to run automated object
+    detection.</p>
+
+<div class="card form-section shadow-sm">
+    <form action="/predict" method="post" enctype="multipart/form-data">
+        <div class="predict-dropzone" onclick="document.getElementById('file-input').click()">
+            <input type="file" id="file-input" name="file" accept="image/*" style="display: none;"
+                onchange="previewImage(this)">
+
+            <div id="upload-content">
+                <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;">📁</div>
+                <h3 style="margin-bottom: 0.5rem;">Choose a file or drag & drop</h3>
+                <p style="color: var(--text-muted);">Supports JPG, PNG, WEBP (Max 5MB)</p>
+            </div>
+
+            <img id="preview"
+                style="max-width: 100%; max-height: 400px; display: none; margin: 1rem auto; border-radius: var(--radius); border: 1px solid var(--border-color);">
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; justify-content: center;">
+            <button type="submit" class="btn" style="padding: 1rem 4rem; font-size: 1.125rem;">Run AI Analysis</button>
+        </div>
+    </form>
+
+    {% if error %}
+    <div class="alert"
+        style="margin-top: 2rem; background-color: #fff5f5; border-color: #feb2b2; color: #c53030; padding: 1.5rem; border-radius: var(--radius);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="font-size: 1.5rem;">⚠️</div>
+            <div>
+                <strong style="display: block; margin-bottom: 0.25rem;">Analysis Failed</strong>
+                <span style="font-size: 0.9rem;">{{ error }}</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if prediction and not error %}
+    <div
+        style="margin-top: 3rem; padding: 2rem; background-color: #f0fff4; border: 1px solid #c6f6d5; border-radius: var(--radius);">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div style="background: white; padding: 1rem; border-radius: 50%; font-size: 1.5rem;">🎯</div>
+            <div>
+                <div style="color: #2f855a; font-weight: 600; font-size: 0.875rem; text-transform: uppercase;">Detection
+                    Result</div>
+                <div style="font-size: 2rem; font-weight: 800; color: #22543d;">{{ prediction|upper }}</div>
+            </div>
+            <div style="margin-left: auto; text-align: right;">
+                <div style="color: var(--text-muted); font-size: 0.875rem;">Confidence</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: #38a169;">{{ (confidence * 100)|round(1) }}%
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('upload-content').style.display = 'none';
+                var preview = document.getElementById('preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

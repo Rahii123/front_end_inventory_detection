@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% set active_page = 'train' %}
+
+{% block title %}Train Model - AI Insight{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">Configuration / Model Training</div>
+<h1>Model Training</h1>
+<p style="margin-bottom: 2.5rem; color: var(--text-muted);">Launch a new training job with customized architecture and
+    hyperparameters.</p>
+
+<div class="card form-section shadow-sm">
+    <form action="/train" method="post">
+        <div class="form-group">
+            <label for="model_name">Model Architecture</label>
+            <select id="model_name" name="model_name">
+                <option value="YOLO12">YOLO12 (Latest)</option>
+                <option value="YOLO12n">YOLO12n (Nano)</option>
+                <option value="YOLO12s">YOLO12s (Small)</option>
+                <option value="YOLOv8">YOLOv8 (Stable)</option>
+            </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="epochs">Epochs</label>
+                <input type="number" id="epochs" name="epochs" value="50" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="batch_size">Batch Size</label>
+                <select id="batch_size" name="batch_size">
+                    <option value="8">8</option>
+                    <option value="16">16</option>
+                    <option value="32" selected>32</option>
+                    <option value="64">64</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="learning_rate">Learning Rate</label>
+            <select id="learning_rate" name="learning_rate">
+                <option value="0.001">0.001</option>
+                <option value="0.0001" selected>0.0001</option>
+                <option value="0.00001">0.00001</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="classes">Number of Classes</label>
+            <input type="number" id="classes" name="classes" value="1" min="1" required>
+            <small style="color: var(--text-muted); font-size: 0.75rem;">Enter the integer count of object classes in
+                your dataset.</small>
+        </div>
+
+        <div class="form-group" style="padding: 1rem 0;">
+            <label style="display: flex; align-items: center; cursor: pointer; user-select: none;">
+                <input type="checkbox" id="augmentation" name="augmentation" value="true"
+                    style="width: auto; margin-right: 0.75rem;" checked>
+                <span>Enable Data Augmentation (Rotation, Scaling, Flipping)</span>
+            </label>
+        </div>
+
+        <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+            <button type="submit" class="btn btn-lg">Initialize Training Job</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

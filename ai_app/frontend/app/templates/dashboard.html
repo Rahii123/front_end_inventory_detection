@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% set active_page = 'dashboard' %}
+
+{% block title %}Dashboard - AI Insight{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">Overview / Dashboard</div>
+<h1>System Overview</h1>
+<p style="margin-bottom: 2.5rem; color: var(--text-muted);">Monitor your hotel image detection models and analysis
+    history.</p>
+
+<div class="dashboard-stats" style="margin-bottom: 3rem;">
+    <div class="card stat-box">
+        <div class="stat-label">Total Predictions</div>
+        <div class="stat-number">{{ total_predictions }}</div>
+        <div class="stat-change change-up">Live Inference Count</div>
+    </div>
+    <div class="card stat-box">
+        <div class="stat-label">Training Jobs</div>
+        <div class="stat-number">{{ total_training }}</div>
+        <div class="stat-change">Configured Sessions</div>
+    </div>
+    <div class="card stat-box">
+        <div class="stat-label">AI Health</div>
+        <div class="stat-number">Stable</div>
+        <div class="stat-change change-up">All API Endpoints Online</div>
+    </div>
+    <div class="card stat-box">
+        <div class="stat-label">Last Activity</div>
+        <div class="stat-number" style="font-size: 1.25rem;">
+            {% if recent_predictions %}
+            {{ recent_predictions[0].created_at.strftime('%H:%M') }}
+            {% else %}
+            N/A
+            {% endif %}
+        </div>
+        <div class="stat-change">Latest Inference</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    <!-- Recent Training -->
+    <div class="card">
+        <h3 style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <span>Training History</span>
+            <a href="/train" style="font-size: 0.875rem; color: var(--primary); text-decoration: none;">View All</a>
+        </h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in recent_training %}
+                <tr>
+                    <td>{{ job.model_name|upper }}</td>
+                    <td>
+                        <span
+                            style="color: {{ '#38a169' if job.status == 'completed' else ('#3182ce' if job.status == 'training' else '#ed8936') }}; font-weight: 600;">
+                            {{ job.status|capitalize }}
+                        </span>
+                    </td>
+                    <td style="font-size: 0.875rem;">{{ job.created_at.strftime('%b %d, %H:%M') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align: center; color: var(--text-muted); py: 2rem;">No training history
+                        found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent Predictions -->
+    <div class="card">
+        <h3 style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <span>Analysis History</span>
+            <a href="/predict" style="font-size: 0.875rem; color: var(--primary); text-decoration: none;">New Scan</a>
+        </h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Result</th>
+                    <th>Conf.</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pred in recent_predictions %}
+                <tr>
+                    <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                        title="{{ pred.filename }}">
+                        {{ pred.filename }}
+                    </td>
+                    <td><strong>{{ pred.prediction_text|upper }}</strong></td>
+                    <td style="color: #38a169; font-weight: 600;">{{ (pred.confidence * 100)|round(1) }}%</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align: center; color: var(--text-muted); py: 2rem;">No analysis history
+                        found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

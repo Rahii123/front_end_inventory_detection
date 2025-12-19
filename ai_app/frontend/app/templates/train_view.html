@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Training Configuration - AI Insight{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">Configuration / Model Training / Get Config</div>
+<h1>Current Training Configuration</h1>
+<p style="margin-bottom: 2.5rem; color: var(--text-muted);">View the static parameters currently deployed for model
+    training.</p>
+
+<!-- Success Message -->
+<div id="successToast" class="alert"
+    style="background-color: #f0fff4; border-color: #c6f6d5; color: #38a169; display: none; margin-bottom: 2rem;">
+    ✅ Parameter adjusted successfully!
+</div>
+
+<!-- Training Status Indicator -->
+<div id="trainingStatus" class="alert"
+    style="background-color: #ebf8ff; border-color: #bee3f8; color: #3182ce; display: none; margin-bottom: 2rem;">
+    <span id="statusIcon">⏳</span> <span id="statusText">Initialzing...</span>
+</div>
+
+<div class="card form-section shadow-sm">
+    <div class="form-group">
+        <label>Model Architecture</label>
+        <input type="text" value="{{ config.model_name|upper if config else 'YOLO12' }}" readonly
+            style="background-color: #f7fafc; cursor: not-allowed;">
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div class="form-group">
+            <label>Epochs</label>
+            <input type="text" value="{{ config.epochs if config else '50' }}" readonly
+                style="background-color: #f7fafc; cursor: not-allowed;">
+        </div>
+        <div class="form-group">
+            <label>Batch Size</label>
+            <input type="text" value="{{ config.batch_size if config else '32' }}" readonly
+                style="background-color: #f7fafc; cursor: not-allowed;">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Learning Rate</label>
+        <input type="text" value="{{ config.learning_rate if config else '0.0001' }}" readonly
+            style="background-color: #f7fafc; cursor: not-allowed;">
+    </div>
+
+    <div class="form-group">
+        <label>Number of Classes</label>
+        <input type="text" value="{{ config.classes if config else '1' }}" readonly
+            style="background-color: #f7fafc; cursor: not-allowed;">
+    </div>
+
+    <div class="form-group">
+        <label>Data Augmentation</label>
+        <input type="text" value="{{ 'True' if (config and config.augmentation) or (not config) else 'False' }}"
+            readonly
+            style="background-color: #f7fafc; cursor: not-allowed; font-weight: 600; color: {{ '#38a169' if (config and config.augmentation) or (not config) else '#e53e3e' }};">
+    </div>
+
+    <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+        <button onclick="showAdjustModal()" class="btn btn-lg">Adjust Parameters</button>
+    </div>
+</div>
+
+<!-- Confirmation Modal: Adjust -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal">
+        <h2 style="margin-bottom: 1rem;">Confirm Adjustment</h2>
+        <p style="color: var(--text-muted);">Are you sure you want to adjust the training parameters? This will take you
+            to the update configuration page.</p>
+        <div class="modal-actions">
+            <button onclick="hideAdjustModal()" class="btn btn-ghost">Cancel</button>
+            <a href="/train/update/config" class="btn">Confirm</a>
+        </div>
+    </div>
+</div>
+
+<!-- Prompt Modal: Want to Train? -->
+<div id="trainPromptModal" class="modal-overlay">
+    <div class="modal">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
+        <h2 style="margin-bottom: 1rem;">Start Training?</h2>
+        <p style="color: var(--text-muted);">Config saved. Do you want to train your model now?</p>
+        <div class="modal-actions">
+            <button onclick="hideTrainPrompt()" class="btn btn-ghost">No, Later</button>
+            <button onclick="initiateTraining()" class="btn">Yes, Start Now</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // UI State Management
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('adjusted') === 'true') {
+        document.getElementById('successToast').style.display = 'block';
+        // Show the "Want to train?" prompt after a short delay
+        setTimeout(() => {
+            document.getElementById('trainPromptModal').style.display = 'flex';
+        }, 800);
+    }
+
+    function showAdjustModal() {
+        document.getElementById('confirmModal').style.display = 'flex';
+    }
+    function hideAdjustModal() {
+        document.getElementById('confirmModal').style.display = 'none';
+    }
+    function hideTrainPrompt() {
+        document.getElementById('trainPromptModal').style.display = 'none';
+    }
+
+    function initiateTraining() {
+        hideTrainPrompt();
+        const statusDiv = document.getElementById('trainingStatus');
+        const statusText = document.getElementById('statusText');
+        const statusIcon = document.getElementById('statusIcon');
+
+        statusDiv.style.display = 'block';
+        statusText.innerText = 'Training is start wait...';
+
+        // Call the actual start/train endpoint
+        fetch('/train/start', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Training response:', data);
+
+                // Mocking a delay for training completion
+                setTimeout(() => {
+                    statusDiv.style.backgroundColor = '#f0fff4';
+                    statusDiv.style.borderColor = '#c6f6d5';
+                    statusDiv.style.color = '#38a169';
+                    statusIcon.innerText = '✅';
+                    statusText.innerHTML = 'Training is complete. <a href="/predict" style="color: #2f855a; font-weight: 700;">Go to prediction endpoint</a>';
+                }, 5000); // 5 seconds mock training
+            })
+            .catch(err => {
+                statusText.innerText = 'Error starting training.';
+                console.error(err);
+            });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Update Training - AI Insight{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">Configuration / Model Training / Update Config</div>
+<h1>Update Parameters</h1>
+<p style="margin-bottom: 2.5rem; color: var(--text-muted);">Adjust the training settings below. Click save to apply
+    changes.</p>
+
+<div class="card form-section shadow-sm">
+    <form action="/train/update/config" method="post">
+        <div class="form-group">
+            <label for="model_name">Model Architecture</label>
+            <select id="model_name" name="model_name">
+                <option value="yolov8" {{ 'selected' if config and config.model_name=='yolov8' else '' }}>yolov8
+                </option>
+                <option value="yolo12" {{ 'selected' if config and config.model_name=='yolo12' else ('' if config
+                    else 'selected' ) }}>yolo12</option>
+                <option value="yolo12n" {{ 'selected' if config and config.model_name=='yolo12n' else '' }}>yolo12n
+                </option>
+                <option value="yolo12s" {{ 'selected' if config and config.model_name=='yolo12s' else '' }}>yolo12s
+                </option>
+            </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="epochs">Epochs</label>
+                <input type="number" id="epochs" name="epochs" value="{{ config.epochs if config else '50' }}" min="1"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="batch_size">Batch Size</label>
+                <select id="batch_size" name="batch_size">
+                    <option value="8" {{ 'selected' if config and config.batch_size==8 else '' }}>8</option>
+                    <option value="16" {{ 'selected' if config and config.batch_size==16 else '' }}>16</option>
+                    <option value="32" {{ 'selected' if config and config.batch_size==32 else ('' if config
+                        else 'selected' ) }}>32</option>
+                    <option value="64" {{ 'selected' if config and config.batch_size==64 else '' }}>64</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="learning_rate">Learning Rate</label>
+            <select id="learning_rate" name="learning_rate">
+                <option value="0.001" {{ 'selected' if config and config.learning_rate=='0.001' else '' }}>0.001
+                </option>
+                <option value="0.0001" {{ 'selected' if config and config.learning_rate=='0.0001' else ('' if config
+                    else 'selected' ) }}>0.0001</option>
+                <option value="0.00001" {{ 'selected' if config and config.learning_rate=='0.00001' else '' }}>0.00001
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="classes">Number of Classes</label>
+            <input type="number" id="classes" name="classes" value="{{ config.classes if config else '1' }}" min="1"
+                required>
+        </div>
+
+        <div class="form-group">
+            <label for="augmentation">Data Augmentation</label>
+            <select id="augmentation" name="augmentation">
+                <option value="true" {{ 'selected' if (config and config.augmentation) or (not config) else '' }}>True
+                    (Enhanced Training)</option>
+                <option value="false" {{ 'selected' if config and not config.augmentation else '' }}>False (Standard
+                    Training)</option>
+            </select>
+        </div>
+
+        <div
+            style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem; display: flex; gap: 1rem;">
+            <a href="/train/get/config" class="btn btn-ghost" style="flex: 1;">Cancel</a>
+            <button type="submit" class="btn" style="flex: 2;">Save Parameters</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
