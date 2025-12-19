@@ -51,21 +51,24 @@ async def save_training_config(
     learning_rate: str = Form(...),
     model_name: str = Form(...),
     classes: int = Form(...),
-    augmentation: bool = Form(False),
+    augmentation: str = Form("true"), # Accepting string from dropdown
     db: Session = Depends(get_db),
     user_id: str | None = Cookie(default=None)
 ):
     if not user_id:
         return RedirectResponse(url="/login")
     
+    # Convert string "true"/"false" to actual boolean
+    is_augmented = augmentation.lower() == "true"
+    
     # Save new config to DB
     new_job = TrainingJob(
         epochs=epochs,
         batch_size=batch_size,
         learning_rate=learning_rate,
-        model_name=model_name.lower(), # Ensure lowercase
+        model_name=model_name.lower(),
         classes=classes,
-        augmentation=augmentation,
+        augmentation=is_augmented,
         status="configured"
     )
     db.add(new_job)

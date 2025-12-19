@@ -15,7 +15,7 @@ except Exception as e:
 
 print("Importing models...")
 try:
-    from app.db.models import User, TrainingJob
+    from app.db.models import User, TrainingJob, Prediction
     print("Imported models.")
 except Exception as e:
     print(f"Failed to import models: {e}")

@@ -20,6 +20,9 @@ async def dashboard(
     # Fetch stats
     total_training = db.query(TrainingJob).count()
     total_predictions = db.query(Prediction).count()
+    
+    print(f"DASHBOARD DIAGNOSTIC: Found {total_training} training jobs and {total_predictions} predictions.")
+    
     recent_training = db.query(TrainingJob).order_by(TrainingJob.id.desc()).limit(5).all()
     recent_predictions = db.query(Prediction).order_by(Prediction.id.desc()).limit(5).all()
     

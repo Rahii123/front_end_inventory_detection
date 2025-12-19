@@ -2,9 +2,13 @@ from fastapi import APIRouter, Request, UploadFile, File, Depends, Cookie
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import random
+import httpx
+import json
+import traceback
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.models import Prediction
+from app.core.config import settings
 
 router = APIRouter(tags=["predict"])
 templates = Jinja2Templates(directory="app/templates")
@@ -27,10 +31,6 @@ async def predict(
     
     # Read file content
     content = await file.read()
-    
-    from app.core.config import settings
-    import httpx
-    import json
     
     prediction_result = None
     confidence = 0
@@ -76,25 +76,28 @@ async def predict(
                             confidence = data.get("confidence") or data.get("score") or 0.99
                     else:
                         error_message = f"Connected! But couldn't find a 'prediction' key in the response. Received: {json.dumps(data)}"
-                except Exception:
+                except Exception as parse_err:
                     # If not JSON, maybe it's raw text?
                     text_resp = response.text.strip()
                     if text_resp and len(text_resp) < 50:
                         prediction_result = text_resp
                     else:
-                        error_message = f"Received non-JSON response from API: {text_resp[:200]}"
+                        error_message = f"Received non-JSON response or Parse Error: {str(parse_err)} | Text: {text_resp[:100]}"
             else:
-                error_message = f"The remote API returned an error (Status {response.status_code}). URL: {settings.EXTERNAL_PREDICTOR_API}"
+                error_message = f"Remote API Error (Status {response.status_code}): {response.text[:200]}"
                 
     except httpx.ConnectError:
-        error_message = f"Error in connection: Unable to reach {settings.EXTERNAL_PREDICTOR_API}. Please ensure your ngrok tunnel is active."
+        error_message = f"Connection Failed: Unable to reach {settings.EXTERNAL_PREDICTOR_API}. Is ngrok running?"
     except httpx.TimeoutException:
-        error_message = "Error in connection: The request to the AI server timed out (60s limit)."
+        error_message = "Connection Timed Out: The AI server took too long to respond (60s limit)."
     except Exception as e:
-        error_message = f"Unexpected Error: {str(e)}"
+        traceback.print_exc()
+        error_message = f"Unexpected Error ({type(e).__name__}): {str(e)}"
     
     # Store in database if successful
     if prediction_result and not error_message:
+        print(f"DEBUG: Attempting to store prediction for {file.filename}")
+        print(f"DEBUG: Data: {prediction_result}, {confidence}")
         try:
             new_prediction = Prediction(
                 filename=file.filename,
@@ -102,10 +105,16 @@ async def predict(
                 confidence=float(confidence)
             )
             db.add(new_prediction)
+            db.flush() # Try to flush before commit to catch early errors
             db.commit()
-            print(f"Stored prediction for {file.filename} in database.")
+            print(f"SUCCESS: Stored prediction for {file.filename} (ID: {new_prediction.id}) in database.")
         except Exception as db_err:
-            print(f"Failed to store prediction in database: {str(db_err)}")
+            db.rollback()
+            print(f"CRITICAL ERROR: Failed to store in database: {str(db_err)}")
+            import traceback
+            traceback.print_exc()
+    else:
+        print(f"DEBUG: Skipping storage. Result: {prediction_result}, Error: {error_message}")
 
     return templates.TemplateResponse("predict.html", {
         "request": request, 
