@@ -10,6 +10,7 @@
 <p style="margin-bottom: 2.5rem; color: var(--text-muted);">Monitor your hotel image detection models and analysis
     history.</p>
 
+<!-- Top Stats Cards -->
 <div class="dashboard-stats" style="margin-bottom: 3rem;">
     <div class="card stat-box">
         <div class="stat-label">Total Predictions</div>
@@ -39,13 +40,18 @@
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-    <!-- Recent Training -->
+<!-- Middle Section: Two Column Cards -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+    <!-- Training History Card -->
     <div class="card">
         <h3 style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
-            <span>Training History</span>
-            <a href="/train" style="font-size: 0.875rem; color: var(--primary); text-decoration: none;">View All</a>
+            <span>📊 Training History</span>
+            <a href="/train"
+                style="font-size: 0.875rem; color: var(--primary); text-decoration: none; font-weight: 700;">View All
+                →</a>
         </h3>
+
+        {% if recent_training %}
         <table>
             <thead>
                 <tr>
@@ -55,59 +61,158 @@
                 </tr>
             </thead>
             <tbody>
-                {% for job in recent_training %}
+                {% for job in recent_training[:5] %}
                 <tr>
-                    <td>{{ job.model_name|upper }}</td>
+                    <td><strong>{{ job.model_name|upper }}</strong></td>
                     <td>
                         <span
-                            style="color: {{ '#38a169' if job.status == 'completed' else ('#3182ce' if job.status == 'training' else '#ed8936') }}; font-weight: 600;">
+                            style="color: {{ '#10b981' if job.status == 'completed' else ('#6366f1' if job.status == 'training' else '#f59e0b') }}; font-weight: 700; font-size: 0.875rem;">
                             {{ job.status|capitalize }}
                         </span>
                     </td>
-                    <td style="font-size: 0.875rem;">{{ job.created_at.strftime('%b %d, %H:%M') }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="3" style="text-align: center; color: var(--text-muted); py: 2rem;">No training history
-                        found</td>
+                    <td style="font-size: 0.875rem; color: var(--text-muted);">{{ job.created_at.strftime('%b %d,
+                        %H:%M') }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if recent_training|length > 5 %}
+        <button class="dropdown-toggle" onclick="toggleDropdown('training-dropdown')">
+            Show {{ recent_training|length - 5 }} More ▼
+        </button>
+        <div id="training-dropdown" class="dropdown-content">
+            <table style="margin-top: 1rem;">
+                <tbody>
+                    {% for job in recent_training[5:] %}
+                    <tr>
+                        <td><strong>{{ job.model_name|upper }}</strong></td>
+                        <td>
+                            <span
+                                style="color: {{ '#10b981' if job.status == 'completed' else ('#6366f1' if job.status == 'training' else '#f59e0b') }}; font-weight: 700; font-size: 0.875rem;">
+                                {{ job.status|capitalize }}
+                            </span>
+                        </td>
+                        <td style="font-size: 0.875rem; color: var(--text-muted);">{{ job.created_at.strftime('%b %d,
+                            %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div style="text-align: center; padding: 3rem 1rem;">
+            <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;">🚀</div>
+            <p style="color: var(--text-muted); font-weight: 600; margin-bottom: 0.5rem;">No Training Jobs Yet</p>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">Start your first training session</p>
+            <a href="/train" class="btn" style="margin-top: 1.5rem; display: inline-flex;">
+                <span style="margin-right: 0.5rem;">🤖</span> Start Training
+            </a>
+        </div>
+        {% endif %}
     </div>
 
-    <!-- Recent Predictions -->
+    <!-- Quick Actions Card -->
     <div class="card">
-        <h3 style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
-            <span>Analysis History</span>
-            <a href="/predict" style="font-size: 0.875rem; color: var(--primary); text-decoration: none;">New Scan</a>
-        </h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>File</th>
-                    <th>Result</th>
-                    <th>Conf.</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pred in recent_predictions %}
-                <tr>
-                    <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
-                        title="{{ pred.filename }}">
-                        {{ pred.filename }}
-                    </td>
-                    <td><strong>{{ pred.prediction_text|upper }}</strong></td>
-                    <td style="color: #38a169; font-weight: 600;">{{ (pred.confidence * 100)|round(1) }}%</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="3" style="text-align: center; color: var(--text-muted); py: 2rem;">No analysis history
-                        found</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <h3 style="margin-bottom: 1.5rem;">⚡ Quick Actions</h3>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <a href="/predict" class="btn" style="width: 100%; justify-content: center;">
+                <span style="margin-right: 0.5rem;">🎯</span> New Image Analysis
+            </a>
+            <a href="/train" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+                <span style="margin-right: 0.5rem;">🚀</span> Configure Training
+            </a>
+            <a href="/train/get/config" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+                <span style="margin-right: 0.5rem;">⚙️</span> View Configuration
+            </a>
+        </div>
+
+        <div
+            style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1)); border-radius: 0.75rem; border: 2px solid var(--border-color);">
+            <h4
+                style="font-size: 0.875rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem;">
+                System Status</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 0.875rem; color: var(--text-muted);">API Status</span>
+                <span style="font-size: 0.875rem; font-weight: 700; color: var(--success);">● Online</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 0.875rem; color: var(--text-muted);">Model Ready</span>
+                <span style="font-size: 0.875rem; font-weight: 700; color: var(--success);">● Yes</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.875rem; color: var(--text-muted);">Database</span>
+                <span style="font-size: 0.875rem; font-weight: 700; color: var(--success);">● Connected</span>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- Bottom Section: Analysis History Full Width Card -->
+<div class="card">
+    <h3 style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <span>🖼️ Recent Analysis History</span>
+        <a href="/predict"
+            style="font-size: 0.875rem; color: var(--primary); text-decoration: none; font-weight: 700;">New Scan
+            →</a>
+    </h3>
+
+    {% if recent_predictions %}
+    <!-- Show first 5 predictions as image gallery -->
+    <div class="image-gallery">
+        {% for pred in recent_predictions[:5] %}
+        <div class="gallery-item">
+            <div
+                style="width: 100%; height: 180px; background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                🖼️
+            </div>
+            <div class="gallery-item-info">
+                <div class="gallery-item-title" title="{{ pred.filename }}">{{ pred.filename }}</div>
+                <div class="gallery-item-meta">
+                    <span class="gallery-item-label">{{ pred.prediction_text|upper }}</span>
+                    <span class="gallery-item-confidence">{{ (pred.confidence * 100)|round(1) }}%</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if recent_predictions|length > 5 %}
+    <button class="dropdown-toggle" onclick="toggleDropdown('predictions-dropdown')">
+        Show {{ recent_predictions|length - 5 }} More ▼
+    </button>
+    <div id="predictions-dropdown" class="dropdown-content">
+        <div class="image-gallery" style="margin-top: 1rem;">
+            {% for pred in recent_predictions[5:] %}
+            <div class="gallery-item">
+                <div
+                    style="width: 100%; height: 180px; background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                    🖼️
+                </div>
+                <div class="gallery-item-info">
+                    <div class="gallery-item-title" title="{{ pred.filename }}">{{ pred.filename }}</div>
+                    <div class="gallery-item-meta">
+                        <span class="gallery-item-label">{{ pred.prediction_text|upper }}</span>
+                        <span class="gallery-item-confidence">{{ (pred.confidence * 100)|round(1) }}%</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;">📸</div>
+        <p style="color: var(--text-muted); font-weight: 600; margin-bottom: 0.5rem;">No Analysis History Yet</p>
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Upload your first image to get started</p>
+        <a href="/predict" class="btn" style="margin-top: 1.5rem; display: inline-flex;">
+            <span style="margin-right: 0.5rem;">🎯</span> Analyze Image
+        </a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
