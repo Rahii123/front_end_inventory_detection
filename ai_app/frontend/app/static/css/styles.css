@@ -40,9 +40,10 @@ body {
 /* Sidebar Navigation */
 .sidebar {
     width: 280px;
-    background: rgba(15, 23, 42, 0.95);
+    background: linear-gradient(135deg, #e0e7ff 0%, #f0f9ff 50%, #fce7f3 100%);
+    background-attachment: fixed;
     backdrop-filter: blur(10px);
-    color: var(--sidebar-text);
+    color: var(--text-main);
     padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
@@ -50,7 +51,7 @@ body {
     height: 100vh;
     left: 0;
     top: 0;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 2px solid rgba(99, 102, 241, 0.2);
     box-shadow: var(--shadow-xl);
 }
 
@@ -87,11 +88,11 @@ body {
     display: flex;
     align-items: center;
     padding: 1rem 1.25rem;
-    color: var(--sidebar-text);
+    color: var(--text-main);
     text-decoration: none;
     border-radius: var(--radius);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 500;
+    font-weight: 600;
     position: relative;
     overflow: hidden;
 }
@@ -109,8 +110,8 @@ body {
 }
 
 .nav-link:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--primary);
     transform: translateX(4px);
 }
 
@@ -119,8 +120,9 @@ body {
 }
 
 .nav-link.active {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2));
-    color: white;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(236, 72, 153, 0.25));
+    color: var(--primary);
+    font-weight: 700;
     box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
 }
 
@@ -130,12 +132,13 @@ body {
 
 .logout-link {
     margin-top: auto;
-    color: #fca5a5;
+    color: #dc2626;
 }
 
 .logout-link:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
+    background: rgba(239, 68, 68, 0.2);
+    color: #dc2626;
+    font-weight: 700;
 }
 
 /* Main Content Area */
@@ -149,7 +152,7 @@ body {
 
 .top-header {
     height: 80px;
-    background: rgba(255, 255, 255, 0.95);
+    background: #ffffff;
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -200,7 +203,7 @@ h1 {
 
 .dashboard-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
     margin-bottom: 3rem;
 }

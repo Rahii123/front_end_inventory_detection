@@ -8,72 +8,116 @@
 <p style="margin-bottom: 2.5rem; color: var(--text-muted);">Adjust the training settings below. Click save to apply
     changes.</p>
 
-<div class="card form-section shadow-sm">
+<div class="card form-section shadow-sm"
+    style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)); max-width: 1000px;">
     <form action="/train/update/config" method="post">
-        <div class="form-group">
-            <label for="model_name">Model Architecture</label>
-            <select id="model_name" name="model_name">
-                <option value="yolov8" {{ 'selected' if config and config.model_name=='yolov8' else '' }}>yolov8
-                </option>
-                <option value="yolo12" {{ 'selected' if config and config.model_name=='yolo12' else ('' if config
-                    else 'selected' ) }}>yolo12</option>
-                <option value="yolo12n" {{ 'selected' if config and config.model_name=='yolo12n' else '' }}>yolo12n
-                </option>
-                <option value="yolo12s" {{ 'selected' if config and config.model_name=='yolo12s' else '' }}>yolo12s
-                </option>
-            </select>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-            <div class="form-group">
-                <label for="epochs">Epochs</label>
-                <input type="number" id="epochs" name="epochs" value="{{ config.epochs if config else '50' }}" min="1"
-                    required>
-            </div>
-            <div class="form-group">
-                <label for="batch_size">Batch Size</label>
-                <select id="batch_size" name="batch_size">
-                    <option value="8" {{ 'selected' if config and config.batch_size==8 else '' }}>8</option>
-                    <option value="16" {{ 'selected' if config and config.batch_size==16 else '' }}>16</option>
-                    <option value="32" {{ 'selected' if config and config.batch_size==32 else ('' if config
-                        else 'selected' ) }}>32</option>
-                    <option value="64" {{ 'selected' if config and config.batch_size==64 else '' }}>64</option>
+        <!-- Model Architecture Section -->
+        <div
+            style="margin-bottom: 2.5rem; padding: 2rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08)); border-radius: 1rem; border: 2px solid rgba(99, 102, 241, 0.3);">
+            <h3
+                style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.5rem;">🤖</span> Model Architecture
+            </h3>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="model_name">Select Model</label>
+                <select id="model_name" name="model_name" style="font-weight: 600;">
+                    <option value="yolov8n" {{ 'selected' if config and config.model_name=='yolov8n' else '' }}>yolov8n
+                        (Nano - Legacy)</option>
+                    <option value="yolov8s" {{ 'selected' if config and config.model_name=='yolov8s' else '' }}>yolov8s
+                        (Small - Legacy)</option>
+                    <option value="yolo12n" {{ 'selected' if config and config.model_name=='yolo12n' else ('' if config
+                        else 'selected' ) }}>yolo12n (Nano - Recommended)</option>
+                    <option value="yolo12s" {{ 'selected' if config and config.model_name=='yolo12s' else '' }}>yolo12s
+                        (Small - Balanced)</option>
                 </select>
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="learning_rate">Learning Rate</label>
-            <select id="learning_rate" name="learning_rate">
-                <option value="0.001" {{ 'selected' if config and config.learning_rate=='0.001' else '' }}>0.001
-                </option>
-                <option value="0.0001" {{ 'selected' if config and config.learning_rate=='0.0001' else ('' if config
-                    else 'selected' ) }}>0.0001</option>
-                <option value="0.00001" {{ 'selected' if config and config.learning_rate=='0.00001' else '' }}>0.00001
-                </option>
-            </select>
+        <!-- Training Parameters Section -->
+        <div
+            style="margin-bottom: 2.5rem; padding: 2rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.08)); border-radius: 1rem; border: 2px solid rgba(16, 185, 129, 0.3);">
+            <h3
+                style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.5rem;">⚙️</span> Training Parameters
+            </h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="epochs">🔄 Epochs</label>
+                    <input type="number" id="epochs" name="epochs" value="{{ config.epochs if config else '50' }}"
+                        min="1" required>
+                    <small
+                        style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.5rem;">Number
+                        of complete passes through the dataset</small>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="batch_size">📦 Batch Size</label>
+                    <select id="batch_size" name="batch_size">
+                        <option value="8" {{ 'selected' if config and config.batch_size==8 else '' }}>8 (Low Memory)
+                        </option>
+                        <option value="16" {{ 'selected' if config and config.batch_size==16 else '' }}>16 (Balanced)
+                        </option>
+                        <option value="32" {{ 'selected' if config and config.batch_size==32 else ('' if config
+                            else 'selected' ) }}>32 (Recommended)</option>
+                        <option value="64" {{ 'selected' if config and config.batch_size==64 else '' }}>64 (High
+                            Performance)</option>
+                    </select>
+                    <small
+                        style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.5rem;">Number
+                        of samples per training step</small>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="learning_rate">📊 Learning Rate</label>
+                    <input type="text" id="learning_rate" name="learning_rate"
+                        value="{{ config.learning_rate if config else '0.0001' }}" pattern="[0-9]*\.?[0-9]+"
+                        placeholder="e.g., 0.0001, 0.001, 0.00001" required
+                        style="font-family: 'Courier New', monospace; font-weight: 600;">
+                    <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.5rem;">
+                        Controls how quickly the model learns (typical: 0.0001 - 0.001)
+                    </small>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="classes">🎯 Number of Classes</label>
+                    <input type="number" id="classes" name="classes" value="{{ config.classes if config else '1' }}"
+                        min="1" required>
+                    <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.5rem;">
+                        Total number of object categories to detect
+                    </small>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="classes">Number of Classes</label>
-            <input type="number" id="classes" name="classes" value="{{ config.classes if config else '1' }}" min="1"
-                required>
-        </div>
-
-        <div class="form-group">
-            <label for="augmentation">Data Augmentation</label>
-            <select id="augmentation" name="augmentation">
+        <!-- Data Augmentation Section -->
+        <div class="form-group"
+            style="padding: 2rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(251, 146, 60, 0.08)); border-radius: 1rem; border: 2px solid rgba(245, 158, 11, 0.3); margin-bottom: 2.5rem;">
+            <h3
+                style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.5rem;">✨</span> Data Augmentation
+            </h3>
+            <label for="augmentation" style="display: block; margin-bottom: 0.75rem;">Enable Augmentation</label>
+            <select id="augmentation" name="augmentation" style="font-weight: 600;">
                 <option value="true" {{ 'selected' if (config and config.augmentation) or (not config) else '' }}>True
-                    (Enhanced Training)</option>
+                    (Enhanced Training - Recommended)</option>
                 <option value="false" {{ 'selected' if config and not config.augmentation else '' }}>False (Standard
                     Training)</option>
             </select>
+            <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.75rem;">
+                Improves model generalization by creating variations of training images
+            </small>
         </div>
 
-        <div
-            style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem; display: flex; gap: 1rem;">
-            <a href="/train/get/config" class="btn btn-ghost" style="flex: 1;">Cancel</a>
-            <button type="submit" class="btn" style="flex: 2;">Save Parameters</button>
+        <!-- Action Buttons -->
+        <div style="border-top: 2px solid var(--border-color); padding-top: 2rem; display: flex; gap: 1rem;">
+            <a href="/train/get/config" class="btn btn-ghost"
+                style="flex: 1; text-align: center; padding: 1.25rem 2rem;">
+                <span style="margin-right: 0.5rem;">❌</span> Cancel
+            </a>
+            <button type="submit" class="btn" style="flex: 2; font-size: 1.125rem; padding: 1.25rem 2.5rem;">
+                <span style="margin-right: 0.75rem; font-size: 1.25rem;">💾</span> Save Parameters
+            </button>
         </div>
     </form>
 </div>

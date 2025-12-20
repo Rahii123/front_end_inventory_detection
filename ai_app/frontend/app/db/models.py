@@ -29,4 +29,5 @@ class Prediction(Base):
     filename = Column(String(255))
     prediction_text = Column(Text)
     confidence = Column(Float)
+    image_path = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

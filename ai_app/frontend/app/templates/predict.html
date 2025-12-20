@@ -7,7 +7,7 @@
 {% block content %}
 <div class="breadcrumb">Inference / Image Analysis</div>
 <h1>Image Analysis</h1>
-<p style="margin-bottom: 2.5rem; color: var(--text-muted);">Upload a hotel inventory image to run automated object
+<p style="margin-bottom: 2.5rem; color: var(--text-muted);">Upload an inventory image to run automated object
     detection.</p>
 
 <div class="card form-section shadow-sm">
@@ -44,10 +44,30 @@
             </div>
         </div>
     </div>
+    {% if image_data %}
+    <div id="error-image-box" style="text-align: center; margin-top: 2rem;">
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">The following image caused the error:</p>
+        <img src="{{ image_data }}"
+            style="max-width: 100%; max-height: 400px; border-radius: var(--radius); border: 2px solid #ef4444; box-shadow: var(--shadow-lg);">
+        <div style="margin-top: 1.5rem;">
+            <button type="button" class="btn btn-clear" onclick="clearPredictionResult()">
+                <span style="margin-right: 0.5rem;">🔄</span> Try Another Image
+            </button>
+        </div>
+    </div>
+    {% endif %}
     {% endif %}
 
     {% if prediction and not error %}
-    <div class="result-container">
+    <div class="result-container" id="result-box">
+        <!-- Predicted Image centered at top -->
+        {% if image_data %}
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <img src="{{ image_data }}"
+                style="max-width: 100%; max-height: 400px; border-radius: var(--radius); border: 2px solid #10b981; box-shadow: var(--shadow-lg);">
+        </div>
+        {% endif %}
+
         <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
             <div
                 style="background: white; padding: 1.25rem; border-radius: 50%; font-size: 2rem; box-shadow: var(--shadow-md);">
@@ -91,6 +111,27 @@
             }
             reader.readAsDataURL(input.files[0]);
         }
+    }
+
+    function clearPredictionResult() {
+        // Hide result box and error boxes
+        const resultBox = document.getElementById('result-box');
+        if (resultBox) resultBox.style.display = 'none';
+
+        const errorImageBox = document.getElementById('error-image-box');
+        if (errorImageBox) errorImageBox.style.display = 'none';
+
+        // Reset preview and file input
+        document.getElementById('preview').style.display = 'none';
+        document.getElementById('upload-content').style.display = 'block';
+        document.getElementById('file-input').value = '';
+
+        // Remove error if exists
+        const errorAlert = document.querySelector('.alert');
+        if (errorAlert) errorAlert.style.display = 'none';
+
+        // Scroll to top of form
+        document.getElementById('predict-form').scrollIntoView({ behavior: 'smooth' });
     }
 </script>
 {% endblock %}

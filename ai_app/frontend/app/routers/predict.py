@@ -5,6 +5,9 @@ import random
 import httpx
 import json
 import traceback
+import base64
+import os
+import uuid
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.models import Prediction
@@ -86,6 +89,10 @@ async def predict(
             else:
                 error_message = f"Remote API Error (Status {response.status_code}): {response.text[:200]}"
                 
+    except httpx.ReadError:
+        error_message = f"Read Error: The connection to {settings.EXTERNAL_PREDICTOR_API} was reset while waiting for a response. This usually happens if the AI server crashes or the image is too large for the current timeout."
+    except httpx.RemoteProtocolError:
+        error_message = f"API Error: The server at {settings.EXTERNAL_PREDICTOR_API} disconnected without sending a response. Is the AI backend healthy?"
     except httpx.ConnectError:
         error_message = f"Connection Failed: Unable to reach {settings.EXTERNAL_PREDICTOR_API}. Is ngrok running?"
     except httpx.TimeoutException:
@@ -97,24 +104,45 @@ async def predict(
     # Store in database if successful
     if prediction_result and not error_message:
         print(f"DEBUG: Attempting to store prediction for {file.filename}")
-        print(f"DEBUG: Data: {prediction_result}, {confidence}")
+        
+        # Save image to static folder for history
+        upload_dir = os.path.join("app", "static", "uploads", "predictions")
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        file_extension = os.path.splitext(file.filename)[1]
+        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        file_path = os.path.join(upload_dir, unique_filename)
+        
+        try:
+            with open(file_path, "wb") as f:
+                f.write(content)
+            # Path for web access (relative to static mount)
+            web_image_path = f"static/uploads/predictions/{unique_filename}"
+        except Exception as save_err:
+            print(f"ERROR saving file: {save_err}")
+            web_image_path = None
+
         try:
             new_prediction = Prediction(
                 filename=file.filename,
                 prediction_text=str(prediction_result),
-                confidence=float(confidence)
+                confidence=float(confidence),
+                image_path=web_image_path
             )
             db.add(new_prediction)
-            db.flush() # Try to flush before commit to catch early errors
+            db.flush()
             db.commit()
-            print(f"SUCCESS: Stored prediction for {file.filename} (ID: {new_prediction.id}) in database.")
+            print(f"SUCCESS: Stored prediction for {file.filename} (ID: {new_prediction.id}, Path: {web_image_path}) in database.")
         except Exception as db_err:
             db.rollback()
             print(f"CRITICAL ERROR: Failed to store in database: {str(db_err)}")
-            import traceback
             traceback.print_exc()
     else:
         print(f"DEBUG: Skipping storage. Result: {prediction_result}, Error: {error_message}")
+
+    # Convert image to base64 for display
+    image_base64 = base64.b64encode(content).decode('utf-8')
+    image_data_uri = f"data:{file.content_type};base64,{image_base64}"
 
     return templates.TemplateResponse("predict.html", {
         "request": request, 
@@ -122,5 +150,6 @@ async def predict(
         "prediction": str(prediction_result) if prediction_result else None,
         "confidence": float(confidence) if confidence else 0,
         "error": error_message,
+        "image_data": image_data_uri,
         "active_page": "predict"
     })

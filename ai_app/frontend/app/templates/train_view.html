@@ -20,47 +20,76 @@
     <span id="statusIcon">⏳</span> <span id="statusText">Initialzing...</span>
 </div>
 
-<div class="card form-section shadow-sm">
-    <div class="form-group">
-        <label>Model Architecture</label>
-        <input type="text" value="{{ config.model_name|upper if config else 'YOLO12' }}" readonly
-            style="background-color: #f7fafc; cursor: not-allowed;">
-    </div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-        <div class="form-group">
-            <label>Epochs</label>
-            <input type="text" value="{{ config.epochs if config else '50' }}" readonly
-                style="background-color: #f7fafc; cursor: not-allowed;">
-        </div>
-        <div class="form-group">
-            <label>Batch Size</label>
-            <input type="text" value="{{ config.batch_size if config else '32' }}" readonly
-                style="background-color: #f7fafc; cursor: not-allowed;">
+<div class="card form-section shadow-sm"
+    style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)); max-width: 1000px;">
+    <!-- Model Architecture Section -->
+    <div
+        style="margin-bottom: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08)); border-radius: 1rem; border: 2px solid rgba(99, 102, 241, 0.3);">
+        <h3
+            style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.5rem;">🤖</span> Model Architecture
+        </h3>
+        <div class="form-group" style="margin-bottom: 0;">
+            <label>Model</label>
+            <input type="text" value="{{ config.model_name|lower if config else 'yolo12n' }}" readonly
+                style="background-color: #f7fafc; cursor: not-allowed; font-weight: 600;">
         </div>
     </div>
 
-    <div class="form-group">
-        <label>Learning Rate</label>
-        <input type="text" value="{{ config.learning_rate if config else '0.0001' }}" readonly
-            style="background-color: #f7fafc; cursor: not-allowed;">
+    <!-- Training Parameters Section -->
+    <div
+        style="margin-bottom: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.08)); border-radius: 1rem; border: 2px solid rgba(16, 185, 129, 0.3);">
+        <h3
+            style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.5rem;">⚙️</span> Training Parameters
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Epochs</label>
+                <input type="text" value="{{ config.epochs if config else '50' }}" readonly
+                    style="background-color: #f7fafc; cursor: not-allowed; font-weight: 600;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Batch Size</label>
+                <input type="text" value="{{ config.batch_size if config else '32' }}" readonly
+                    style="background-color: #f7fafc; cursor: not-allowed; font-weight: 600;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Learning Rate</label>
+                <input type="text" value="{{ config.learning_rate if config else '0.0001' }}" readonly
+                    style="background-color: #f7fafc; cursor: not-allowed; font-family: 'Courier New', monospace; font-weight: 600;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Number of Classes</label>
+                <input type="text" value="{{ config.classes if config else '1' }}" readonly
+                    style="background-color: #f7fafc; cursor: not-allowed; font-weight: 600;">
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label>Number of Classes</label>
-        <input type="text" value="{{ config.classes if config else '1' }}" readonly
-            style="background-color: #f7fafc; cursor: not-allowed;">
+    <!-- Data Augmentation Section -->
+    <div
+        style="margin-bottom: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(251, 146, 60, 0.08)); border-radius: 1rem; border: 2px solid rgba(245, 158, 11, 0.3);">
+        <h3
+            style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.5rem;">✨</span> Data Augmentation
+        </h3>
+        <div class="form-group" style="margin-bottom: 0;">
+            <label>Status</label>
+            <input type="text" value="{{ 'True' if (config and config.augmentation) or (not config) else 'False' }}"
+                readonly
+                style="background-color: #f7fafc; cursor: not-allowed; font-weight: 700; color: {{ '#10b981' if (config and config.augmentation) or (not config) else '#ef4444' }};">
+        </div>
     </div>
 
-    <div class="form-group">
-        <label>Data Augmentation</label>
-        <input type="text" value="{{ 'True' if (config and config.augmentation) or (not config) else 'False' }}"
-            readonly
-            style="background-color: #f7fafc; cursor: not-allowed; font-weight: 600; color: {{ '#38a169' if (config and config.augmentation) or (not config) else '#e53e3e' }};">
-    </div>
-
-    <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
-        <button onclick="showAdjustModal()" class="btn btn-lg">Adjust Parameters</button>
+    <div style="border-top: 2px solid var(--border-color); padding-top: 2rem;">
+        <button onclick="showAdjustModal()" class="btn btn-lg" style="font-size: 1.125rem; padding: 1.5rem 3rem;">
+            <span style="margin-right: 0.75rem; font-size: 1.25rem;">⚙️</span> Adjust Parameters
+        </button>
     </div>
 </div>
 
@@ -94,11 +123,14 @@
     // UI State Management
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('adjusted') === 'true') {
-        document.getElementById('successToast').style.display = 'block';
+        // Show success toast immediately
+        const successToast = document.getElementById('successToast');
+        successToast.style.display = 'block';
+
         // Show the "Want to train?" prompt after a short delay
         setTimeout(() => {
             document.getElementById('trainPromptModal').style.display = 'flex';
-        }, 800);
+        }, 1000);
     }
 
     function showAdjustModal() {
@@ -117,8 +149,13 @@
         const statusText = document.getElementById('statusText');
         const statusIcon = document.getElementById('statusIcon');
 
+        // Show training status
         statusDiv.style.display = 'block';
-        statusText.innerText = 'Training is start wait...';
+        statusDiv.style.backgroundColor = '#ebf8ff';
+        statusDiv.style.borderColor = '#bee3f8';
+        statusDiv.style.color = '#3182ce';
+        statusIcon.innerText = '⏳';
+        statusText.innerText = 'Training is starting, please wait...';
 
         // Call the actual start/train endpoint
         fetch('/train/start', { method: 'POST' })
@@ -126,17 +163,32 @@
             .then(data => {
                 console.log('Training response:', data);
 
-                // Mocking a delay for training completion
+                // Update to show training in progress
+                statusIcon.innerText = '🚀';
+                statusText.innerText = 'Model is training with adjusted parameters. This may take several minutes. Please wait...';
+
+                // Simulate training completion (in production, this would be a polling mechanism or websocket)
+                // For now, using a timeout to simulate the training process
                 setTimeout(() => {
+                    // Training complete - show success
                     statusDiv.style.backgroundColor = '#f0fff4';
                     statusDiv.style.borderColor = '#c6f6d5';
                     statusDiv.style.color = '#38a169';
                     statusIcon.innerText = '✅';
-                    statusText.innerHTML = 'Training is complete. <a href="/predict" style="color: #2f855a; font-weight: 700;">Go to prediction endpoint</a>';
-                }, 5000); // 5 seconds mock training
+                    statusText.innerText = 'Training complete! Redirecting to prediction page...';
+
+                    // Redirect to prediction page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/predict';
+                    }, 2000);
+                }, 8000); // 8 seconds to simulate training (adjust as needed)
             })
             .catch(err => {
-                statusText.innerText = 'Error starting training.';
+                statusDiv.style.backgroundColor = '#fff5f5';
+                statusDiv.style.borderColor = '#feb2b2';
+                statusDiv.style.color = '#c53030';
+                statusIcon.innerText = '❌';
+                statusText.innerText = 'Error starting training. Please try again.';
                 console.error(err);
             });
     }

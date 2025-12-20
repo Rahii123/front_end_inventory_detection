@@ -160,14 +160,24 @@
     </h3>
 
     {% if recent_predictions %}
-    <!-- Show first 5 predictions as image gallery -->
+    <!-- Show first 6 predictions as image gallery -->
     <div class="image-gallery">
-        {% for pred in recent_predictions[:5] %}
+        {% for pred in recent_predictions[:6] %}
         <div class="gallery-item">
+            {% if pred.image_path %}
+            <img src="/{{ pred.image_path }}" alt="Prediction Image"
+                style="width: 100%; height: 180px; object-fit: cover; border-radius: 0.75rem 0.75rem 0 0;"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div
-                style="width: 100%; height: 180px; background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                style="width: 100%; height: 180px; background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); display: none; align-items: center; justify-content: center; color: white; font-size: 3rem; border-radius: 0.75rem 0.75rem 0 0;">
                 🖼️
             </div>
+            {% else %}
+            <div
+                style="width: 100%; height: 180px; background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; border-radius: 0.75rem 0.75rem 0 0;">
+                🖼️
+            </div>
+            {% endif %}
             <div class="gallery-item-info">
                 <div class="gallery-item-title" title="{{ pred.filename }}">{{ pred.filename }}</div>
                 <div class="gallery-item-meta">
@@ -179,18 +189,28 @@
         {% endfor %}
     </div>
 
-    {% if recent_predictions|length > 5 %}
+    {% if recent_predictions|length > 6 %}
     <button class="dropdown-toggle" onclick="toggleDropdown('predictions-dropdown')">
-        Show {{ recent_predictions|length - 5 }} More ▼
+        Show {{ recent_predictions|length - 6 }} More ▼
     </button>
     <div id="predictions-dropdown" class="dropdown-content">
         <div class="image-gallery" style="margin-top: 1rem;">
-            {% for pred in recent_predictions[5:] %}
+            {% for pred in recent_predictions[6:] %}
             <div class="gallery-item">
+                {% if pred.image_path %}
+                <img src="/{{ pred.image_path }}" alt="Prediction Image"
+                    style="width: 100%; height: 180px; object-fit: cover; border-radius: 0.75rem 0.75rem 0 0;"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div
-                    style="width: 100%; height: 180px; background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                    style="width: 100%; height: 180px; background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); display: none; align-items: center; justify-content: center; color: white; font-size: 3rem; border-radius: 0.75rem 0.75rem 0 0;">
                     🖼️
                 </div>
+                {% else %}
+                <div
+                    style="width: 100%; height: 180px; background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; border-radius: 0.75rem 0.75rem 0 0;">
+                    🖼️
+                </div>
+                {% endif %}
                 <div class="gallery-item-info">
                     <div class="gallery-item-title" title="{{ pred.filename }}">{{ pred.filename }}</div>
                     <div class="gallery-item-meta">

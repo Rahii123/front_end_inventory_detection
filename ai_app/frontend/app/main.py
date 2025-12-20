@@ -10,6 +10,20 @@ from sqlalchemy.orm import Session
 # Create DB tables
 models.Base.metadata.create_all(bind=engine)
 
+# Auto-migration: Check if image_path exists in predictions table
+try:
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        # Check if the column exists
+        result = conn.execute(text("SHOW COLUMNS FROM predictions LIKE 'image_path'")).fetchone()
+        if not result:
+            print("MIGRATION: Adding 'image_path' column to 'predictions' table...")
+            conn.execute(text("ALTER TABLE predictions ADD COLUMN image_path VARCHAR(500) AFTER confidence"))
+            conn.commit()
+            print("MIGRATION: Successfully added 'image_path' column.")
+except Exception as e:
+    print(f"MIGRATION ERROR (Non-critical): {e}")
+
 app = FastAPI(title="AI Vision Pro")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
